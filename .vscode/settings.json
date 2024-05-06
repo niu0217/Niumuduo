@@ -1,0 +1,7 @@
+{
+    "workbench.editor.wrapTabs": true,
+    "files.associations": {
+        "*.ipp": "cpp",
+        "*.tcc": "cpp"
+    }
+}

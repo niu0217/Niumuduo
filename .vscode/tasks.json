@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "build_echo",
+			"command": "cd ${workspaceFolder}/examples/simple/echo/ && make",
+		},
+		{
+			"type": "shell",
+			"label": "clean_echo",
+			"command": "cd ${workspaceFolder}/examples/simple/echo/ && make clean",
+		}
+	]
+}
