@@ -8,8 +8,8 @@
 		},
 		{
 			"type": "shell",
-			"label": "clean_echo",
-			"command": "cd ${workspaceFolder}/examples/simple/echo/ && make clean",
+			"label": "build_timer",
+			"command": "cd ${workspaceFolder}/examples/asio/tutorial/timer2/ && make",
 		}
 	]
 }
