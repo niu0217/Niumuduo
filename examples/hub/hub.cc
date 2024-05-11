@@ -96,6 +96,7 @@ class PubSubServer : noncopyable
       const ConnectionSubscription& connSub
         = boost::any_cast<const ConnectionSubscription&>(conn->getContext());
       // subtle: doUnsubscribe will erase *it, so increase before calling.
+      // 一个客户连接可能关联了多个主题，都需要退订
       for (ConnectionSubscription::const_iterator it = connSub.begin();
            it != connSub.end();)
       {
