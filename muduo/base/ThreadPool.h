@@ -49,12 +49,12 @@ class ThreadPool : noncopyable
  private:
   bool isFull() const REQUIRES(mutex_);
   void runInThread();
-  Task take();
+  Task take();  // 获取任务
 
   mutable MutexLock mutex_;
   Condition notEmpty_ GUARDED_BY(mutex_);
   Condition notFull_ GUARDED_BY(mutex_);
-  string name_;
+  string name_;  // 线程池的名字
   Task threadInitCallback_;
   std::vector<std::unique_ptr<muduo::Thread>> threads_;
   std::deque<Task> queue_ GUARDED_BY(mutex_);

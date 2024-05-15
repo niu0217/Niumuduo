@@ -69,6 +69,7 @@ size_t ThreadPool::queueSize() const
   return queue_.size();
 }
 
+// 生产者：生产任务
 void ThreadPool::run(Task task)
 {
   if (threads_.empty())
@@ -90,9 +91,10 @@ void ThreadPool::run(Task task)
   }
 }
 
+// 消费者：消费队列中的任务
 ThreadPool::Task ThreadPool::take()
 {
-  MutexLockGuard lock(mutex_);
+  MutexLockGuard lock(mutex_); // 任务队列需要加锁保护
   // always use a while-loop, due to spurious wakeup
   while (queue_.empty() && running_)
   {
@@ -127,7 +129,7 @@ void ThreadPool::runInThread()
     }
     while (running_)
     {
-      Task task(take());
+      Task task(take());  // 获取任务
       if (task)
       {
         task();
