@@ -20,15 +20,15 @@ set(CXX_FLAGS
  -D_FILE_OFFSET_BITS=64
  -Wall
  -Wextra
- -Werror
- -Wconversion
- -Wno-unused-parameter
- -Wold-style-cast
- -Woverloaded-virtual
- -Wpointer-arith
- -Wshadow
- -Wwrite-strings
- -march=native
+ -Werror # 把警告当成错误
+ -Wconversion # 一些可能改变值的隐式转换，给出警告
+ -Wno-unused-parameter # 函数中出现未使用的参数，不给出警告
+ -Wold-style-cast # C风格的转换，给出警告
+ -Woverloaded-virtual # 如果函数的声明隐藏住了基类的虚函数，就给出警告
+ -Wpointer-arith # 对函数指针或者void*类型的指针进行算术操作时给出警告
+ -Wshadow # 当一个局部变量覆盖住了另一个局部变量或者全局变量时，给出警告
+ -Wwrite-strings # 规定字符串常量的类型为const char[length],把这样的地址复制给non-const char*指针会产生警告
+ -march=native # 指定CPU体系结构为本地平台
  # -MMD
  -std=c++11
  -rdynamic

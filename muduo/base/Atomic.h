@@ -39,6 +39,7 @@ class AtomicIntegerT : noncopyable
   T get()
   {
     // in gcc >= 4.7: __atomic_load_n(&value_, __ATOMIC_SEQ_CST)
+    // 使用原子的方式比较 value_ 和 0，如果它们相等，则将 value_ 的值设为 0，并返回 value_ 原来的值
     return __sync_val_compare_and_swap(&value_, 0, 0);
   }
 
