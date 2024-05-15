@@ -3,7 +3,8 @@
     "files.associations": {
         "*.ipp": "cpp",
         "*.tcc": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "mutex": "cpp"
     },
     "C_Cpp.default.compileCommands": "compile_commands.json"
 }
