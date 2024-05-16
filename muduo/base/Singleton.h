@@ -62,6 +62,8 @@ class Singleton : noncopyable
   }
 
  private:
+  // 这里的 pthread_once_t 类型用来保证 pthread_once() 函数只会在多线程环境下的
+  // 第一次调用时执行其中的函数，以避免重复执行
   static pthread_once_t ponce_;
   static T*             value_;
 };

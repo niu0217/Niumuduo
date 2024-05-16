@@ -4,7 +4,8 @@
         "*.ipp": "cpp",
         "*.tcc": "cpp",
         "functional": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "string": "cpp"
     },
     "C_Cpp.default.compileCommands": "compile_commands.json"
 }
