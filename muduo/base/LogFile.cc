@@ -94,6 +94,7 @@ bool LogFile::rollFile()
 {
   time_t now = 0;
   string filename = getLogFileName(basename_, &now);
+  // 对齐至kRollPerSeconds_整数倍，也就是时间调整到当天零点
   time_t start = now / kRollPerSeconds_ * kRollPerSeconds_;
 
   if (now > lastRoll_)
@@ -101,7 +102,7 @@ bool LogFile::rollFile()
     lastRoll_ = now;
     lastFlush_ = now;
     startOfPeriod_ = start;
-    file_.reset(new FileUtil::AppendFile(filename));
+    file_.reset(new FileUtil::AppendFile(filename));  // 在这里产生一个新的日志文件
     return true;
   }
   return false;
@@ -110,21 +111,21 @@ bool LogFile::rollFile()
 string LogFile::getLogFileName(const string& basename, time_t* now)
 {
   string filename;
-  filename.reserve(basename.size() + 64);
+  filename.reserve(basename.size() + 64);  // 文件名称的长度=基础名字+64字节
   filename = basename;
 
   char timebuf[32];
   struct tm tm;
-  *now = time(NULL);
+  *now = time(NULL);  // 获取当前时间
   gmtime_r(now, &tm); // FIXME: localtime_r ?
   strftime(timebuf, sizeof timebuf, ".%Y%m%d-%H%M%S.", &tm);
-  filename += timebuf;
+  filename += timebuf; // timebuf=年月日-时分秒
 
-  filename += ProcessInfo::hostname();
+  filename += ProcessInfo::hostname(); // 添加主机名字
 
   char pidbuf[32];
   snprintf(pidbuf, sizeof pidbuf, ".%d", ProcessInfo::pid());
-  filename += pidbuf;
+  filename += pidbuf;  // 添加进程名字
 
   filename += ".log";
 

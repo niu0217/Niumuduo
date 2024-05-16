@@ -41,9 +41,9 @@ class ReadSmallFile : noncopyable
   static const int kBufferSize = 64*1024;
 
  private:
-  int fd_;
+  int fd_; // 文件描述符
   int err_;
-  char buf_[kBufferSize];
+  char buf_[kBufferSize];  // 64kb 大小的缓冲区
 };
 
 // read the file content, returns errno if error happens.
@@ -78,7 +78,7 @@ class AppendFile : noncopyable
   size_t write(const char* logline, size_t len);
 
   FILE* fp_;
-  char buffer_[64*1024];
+  char buffer_[64*1024];  // 64kb 的文件缓冲区
   off_t writtenBytes_;
 };
 

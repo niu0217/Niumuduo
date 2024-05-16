@@ -5,7 +5,14 @@
         "*.tcc": "cpp",
         "functional": "cpp",
         "mutex": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "bitset": "cpp",
+        "memory": "cpp",
+        "random": "cpp",
+        "future": "cpp",
+        "optional": "cpp",
+        "chrono": "cpp",
+        "ostream": "cpp"
     },
     "C_Cpp.default.compileCommands": "compile_commands.json"
 }

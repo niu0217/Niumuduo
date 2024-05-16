@@ -14,17 +14,19 @@ namespace muduo
 
 class TimeZone;
 
+// 日志调用关系：
+//   Logger Impl  LogStream  operator<<  FixedBuffer  g_output  g_flush
 class Logger
 {
  public:
   enum LogLevel
   {
-    TRACE,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL,
+    TRACE, // 指出比DEBUG粒度更细的一些信息事件（开发过程中使用）
+    DEBUG, // 指出细粒度信息事件对调试应用程序很有帮组（开发过程中使用）
+    INFO,  // 表明消息在粗粒度级别上突出强调应用程序的运行过程
+    WARN,  // 系统能正常运行，但可能会出现潜在错误的情形
+    ERROR, // 虽然发生错误事件，但是不影响系统的继续运行
+    FATAL, // 每个严重的错误事件都会导致应用程序的退出
     NUM_LOG_LEVELS,
   };
 
