@@ -136,7 +136,11 @@ class TcpConnection : noncopyable,
   StateE state_;  // FIXME: use atomic variable
   bool reading_;
   // we don't expose those classes to client.
+  // TcpConnection和Socket是组合关系
+  // TcpConnection管理着Socket的生存周期
   std::unique_ptr<Socket> socket_;
+  // TcpConnection和Channel也是组合关系
+  // TcpConnection管理着Channel的生存周期
   std::unique_ptr<Channel> channel_;
   const InetAddress localAddr_;
   const InetAddress peerAddr_;

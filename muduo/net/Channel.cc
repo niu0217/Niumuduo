@@ -80,6 +80,12 @@ void Channel::handleEvent(Timestamp receiveTime)
   }
 }
 
+// POLLIN   可读事件
+// POLLPRI  优先级数据可读事件
+// POLLOUT  可写事件
+// POLLNVAL 文件描述符非法，不是一个打开的文件描述符，不能执行 I/O 操作
+// POLLERR  文件描述符上发生了错误，例如连接错误、接收错误等
+// POLLRDHUP 连接的对端（远程端）关闭了连接或者关闭了写方向。
 void Channel::handleEventWithGuard(Timestamp receiveTime)
 {
   eventHandling_ = true;

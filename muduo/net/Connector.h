@@ -25,6 +25,8 @@ namespace net
 class Channel;
 class EventLoop;
 
+/// 主动连接
+/// Connector的生存周期由TcpClient控制
 class Connector : noncopyable,
                   public std::enable_shared_from_this<Connector>
 {
@@ -53,6 +55,9 @@ class Connector : noncopyable,
   void stopInLoop();
   void connect();
   void connecting(int sockfd);
+  // 处理可写事件
+  // 可写事件的注册由Channel来负责，当可写事件发生的时候
+  // Channel的handleEvent会回调handleWrite()
   void handleWrite();
   void handleError();
   void retry(int sockfd);

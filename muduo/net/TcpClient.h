@@ -71,6 +71,8 @@ class TcpClient : noncopyable
   void removeConnection(const TcpConnectionPtr& conn);
 
   EventLoop* loop_;
+  // TcpClient和Connector是组合关系
+  // Connector的生命周期由TcpClient控制
   ConnectorPtr connector_; // avoid revealing Connector
   const string name_;
   ConnectionCallback connectionCallback_;
@@ -81,6 +83,8 @@ class TcpClient : noncopyable
   // always in loop thread
   int nextConnId_;
   mutable MutexLock mutex_;
+  // TcpClient和TcpConnection是聚合关系
+  // 一个TcpClient对应一个TcpConnection，但是不管理它的生存周期
   TcpConnectionPtr connection_ GUARDED_BY(mutex_);
 };
 

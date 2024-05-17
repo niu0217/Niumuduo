@@ -59,7 +59,9 @@ class Poller : noncopyable
 
  protected:
   typedef std::map<int, Channel*> ChannelMap;
-  ChannelMap channels_;
+  // fd和Channel*的映射关系
+  // Poller和Channel是关联关系，Poller不管理Channel的生存周期
+  ChannelMap channels_;  
 
  private:
   EventLoop* ownerLoop_;

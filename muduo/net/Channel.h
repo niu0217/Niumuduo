@@ -30,6 +30,7 @@ class EventLoop;
 /// This class doesn't own the file descriptor.
 /// The file descriptor could be a socket,
 /// an eventfd, a timerfd, or a signalfd
+/// 对IO事件的响应与封装 注册IO的可读可写等事件
 class Channel : noncopyable
 {
  public:
@@ -83,6 +84,9 @@ class Channel : noncopyable
  private:
   static string eventsToString(int fd, int ev);
 
+  // 调用关系：调用EventLoop的updateChannel()
+  //         ==>  再调用Poller的updateChannel(channel)
+  // 将fd_的可读可写等事件注册到Poller中
   void update();
   void handleEventWithGuard(Timestamp receiveTime);
 
@@ -91,8 +95,13 @@ class Channel : noncopyable
   static const int kWriteEvent;
 
   EventLoop* loop_;
+  // Channel不拥有文件描述符，也就是说当Channel析构的时候，文件描述符并没有被close掉
+  // Channel和文件描述符是关联关系，一个Channel有一个文件描述符
+  // EventLoop和文件描述符也是关联关系，一个EventLoop有多个文件描述符
+  // 那么文件描述符fd_是被谁管理的呢？答案是Socket类，它的生命周期由Socket类来管理
+  // Socket类的析构函数会调用close来关闭文件描述符fd_
   const int  fd_;
-  int        events_;
+  int        events_;  // 它关心的事件
   int        revents_; // it's the received event types of epoll or poll
   int        index_; // used by Poller.
   bool       logHup_;

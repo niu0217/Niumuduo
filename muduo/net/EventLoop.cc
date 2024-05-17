@@ -75,7 +75,7 @@ EventLoop::EventLoop()
     currentActiveChannel_(NULL)
 {
   LOG_DEBUG << "EventLoop created " << this << " in thread " << threadId_;
-  if (t_loopInThisThread)
+  if (t_loopInThisThread)  // 当前线程已经创建了EventLoop对象
   {
     LOG_FATAL << "Another EventLoop " << t_loopInThisThread
               << " exists in this thread " << threadId_;
@@ -111,7 +111,7 @@ void EventLoop::loop()
   while (!quit_)
   {
     activeChannels_.clear();
-    pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
+    pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);  // activeChannels_在这里被赋值
     ++iteration_;
     if (Logger::logLevel() <= Logger::TRACE)
     {
@@ -122,7 +122,7 @@ void EventLoop::loop()
     for (Channel* channel : activeChannels_)
     {
       currentActiveChannel_ = channel;
-      currentActiveChannel_->handleEvent(pollReturnTime_);
+      currentActiveChannel_->handleEvent(pollReturnTime_);  // 通过回调函数处理各种事件
     }
     currentActiveChannel_ = NULL;
     eventHandling_ = false;

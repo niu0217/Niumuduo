@@ -27,6 +27,9 @@ class InetAddress;
 ///
 /// Acceptor of incoming TCP connections.
 ///
+/// 关心的是监听套接字的可读事件
+/// 被动连接
+/// Acceptor的生存周期由TcpServer控制
 class Acceptor : noncopyable
 {
  public:
@@ -47,6 +50,9 @@ class Acceptor : noncopyable
   // bool listenning() const { return listening(); }
 
  private:
+  // 处理可读事件（主要是新的客户连接到来）
+  // 可读事件的注册由Channel来负责，当可读事件发生的时候
+  // Channel的handleEvent会回调handleRead()
   void handleRead();
 
   EventLoop* loop_;

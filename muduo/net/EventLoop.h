@@ -36,6 +36,8 @@ class TimerQueue;
 /// Reactor, at most one per thread.
 ///
 /// This is an interface class, so don't expose too much details.
+/// 每个线程最多只能有一个EventLoop对象
+/// 创建了EventLoop对象的线程称为IO线程，其功能是运行事件循环(EventLoop::loop())
 class EventLoop : noncopyable
 {
  public:
@@ -48,7 +50,7 @@ class EventLoop : noncopyable
   /// Loops forever.
   ///
   /// Must be called in the same thread as creation of the object.
-  ///
+  /// 该函数不能跨线程调用 只能在创建该对象的线程中调用
   void loop();
 
   /// Quits loop.
@@ -142,8 +144,10 @@ class EventLoop : noncopyable
   bool eventHandling_; /* atomic */
   bool callingPendingFunctors_; /* atomic */
   int64_t iteration_;
-  const pid_t threadId_;
+  const pid_t threadId_;  // 当前对象所属线程ID
   Timestamp pollReturnTime_;
+  // Poller和EventLoop是组合关系
+  // Poller的生存周期由EventLoop来控制
   std::unique_ptr<Poller> poller_;
   std::unique_ptr<TimerQueue> timerQueue_;
   int wakeupFd_;
@@ -152,7 +156,10 @@ class EventLoop : noncopyable
   std::unique_ptr<Channel> wakeupChannel_;
   boost::any context_;
 
-  // scratch variables
+  /// scratch variables
+  // Channel和EventLoop是聚合关系
+  // 一个EventLoop可以有多个Channel，但是不管理它的生存周期
+  // Channel的生存周期由TcpConnection、Acceptor、Connector等类控制
   ChannelList activeChannels_;
   Channel* currentActiveChannel_;
 
