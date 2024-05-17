@@ -56,6 +56,8 @@ void Channel::update()
   loop_->updateChannel(this);
 }
 
+// 必须先调用disableAll() 说明这个Channel不关心任何事件
+// 这个时候才可以调用remove()去移除它，不然会断言失败
 void Channel::remove()
 {
   assert(isNoneEvent());
@@ -83,6 +85,7 @@ void Channel::handleEvent(Timestamp receiveTime)
 // POLLIN   可读事件
 // POLLPRI  优先级数据可读事件
 // POLLOUT  可写事件
+// POLLHUP  用于检测文件描述符上发生的挂起事件。比如当文件描述符的输入流被挂起（如对端关闭连接）
 // POLLNVAL 文件描述符非法，不是一个打开的文件描述符，不能执行 I/O 操作
 // POLLERR  文件描述符上发生了错误，例如连接错误、接收错误等
 // POLLRDHUP 连接的对端（远程端）关闭了连接或者关闭了写方向。

@@ -72,6 +72,7 @@ void PollPoller::fillActiveChannels(int numEvents,
   }
 }
 
+// 用于注册或者更新Channel
 void PollPoller::updateChannel(Channel* channel)
 {
   Poller::assertInLoopThread();
@@ -101,9 +102,14 @@ void PollPoller::updateChannel(Channel* channel)
     pfd.fd = channel->fd();
     pfd.events = static_cast<short>(channel->events());
     pfd.revents = 0;
+    // 将一个通道暂时更改为不关注事件，但是不从Poller中移除该通道
     if (channel->isNoneEvent())
     {
       // ignore this pollfd
+      // 暂时忽略该文件描述符的事件
+      // 这里的pfd.fd也可以直接设置为-1，这样文件描述符就是无效的了
+      // 这里不设置为-1，主要是为了removeChannel优化
+      // 这里相反数减一是为了特殊情况0
       pfd.fd = -channel->fd()-1;
     }
   }
@@ -128,9 +134,10 @@ void PollPoller::removeChannel(Channel* channel)
   }
   else
   {
+    // 这里移除的算法复杂度是O(1) 将待删除的元素与最后一个元素交换再pop_back()
     int channelAtEnd = pollfds_.back().fd;
     iter_swap(pollfds_.begin()+idx, pollfds_.end()-1);
-    if (channelAtEnd < 0)
+    if (channelAtEnd < 0)  // 说明最后一个元素已经被设置为不关注事件，这时候需要暂时还原为原来的fd
     {
       channelAtEnd = -channelAtEnd-1;
     }

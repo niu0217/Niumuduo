@@ -103,8 +103,8 @@ class EventLoop : noncopyable
 
   // internal usage
   void wakeup();
-  void updateChannel(Channel* channel);
-  void removeChannel(Channel* channel);
+  void updateChannel(Channel* channel);  // 在Poller中添加或者更新通道
+  void removeChannel(Channel* channel);  // 在Poller中移除通道
   bool hasChannel(Channel* channel);
 
   // pid_t threadId() const { return threadId_; }
@@ -140,8 +140,8 @@ class EventLoop : noncopyable
   typedef std::vector<Channel*> ChannelList;
 
   bool looping_; /* atomic */
-  std::atomic<bool> quit_;
-  bool eventHandling_; /* atomic */
+  std::atomic<bool> quit_;  // 是否退出loop
+  bool eventHandling_; /* atomic */ // 当前是否处于事件处理状态
   bool callingPendingFunctors_; /* atomic */
   int64_t iteration_;
   const pid_t threadId_;  // 当前对象所属线程ID
@@ -160,8 +160,8 @@ class EventLoop : noncopyable
   // Channel和EventLoop是聚合关系
   // 一个EventLoop可以有多个Channel，但是不管理它的生存周期
   // Channel的生存周期由TcpConnection、Acceptor、Connector等类控制
-  ChannelList activeChannels_;
-  Channel* currentActiveChannel_;
+  ChannelList activeChannels_;  // Poller返回的活动通道
+  Channel* currentActiveChannel_; // 当前正在处理的活动通道
 
   mutable MutexLock mutex_;
   std::vector<Functor> pendingFunctors_ GUARDED_BY(mutex_);

@@ -94,6 +94,7 @@ class Channel : noncopyable
   static const int kReadEvent;
   static const int kWriteEvent;
 
+  // 一个EventLoop可以对应多个Channel，但是一个Channel只能对应于一个EventLoop
   EventLoop* loop_;
   // Channel不拥有文件描述符，也就是说当Channel析构的时候，文件描述符并没有被close掉
   // Channel和文件描述符是关联关系，一个Channel有一个文件描述符
@@ -103,12 +104,12 @@ class Channel : noncopyable
   const int  fd_;
   int        events_;  // 它关心的事件
   int        revents_; // it's the received event types of epoll or poll
-  int        index_; // used by Poller.
+  int        index_; // used by Poller.  表示在poll的事件数组中的序号
   bool       logHup_;
 
   std::weak_ptr<void> tie_;
   bool tied_;
-  bool eventHandling_;
+  bool eventHandling_;  // 是否处于处理事件中
   bool addedToLoop_;
   ReadEventCallback readCallback_;
   EventCallback writeCallback_;
