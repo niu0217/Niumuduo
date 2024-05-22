@@ -22,6 +22,10 @@ namespace net
 
 class EventLoop;
 
+/// 任何一个线程，只要创建并运行了EventLoop，都称之为IO线程
+/// 为了日后方便使用，定义了EventLoopThread类，该类封装了IO线程
+/// EventLoopThread创建了一个线程，在线程函数中创建了一个EventLoop对象
+/// 并调用EventLoop::loop
 class EventLoopThread : noncopyable
 {
  public:
@@ -30,10 +34,10 @@ class EventLoopThread : noncopyable
   EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback(),
                   const string& name = string());
   ~EventLoopThread();
-  EventLoop* startLoop();
+  EventLoop* startLoop();  // 启动线程，该线程就成为了IO线程
 
  private:
-  void threadFunc();
+  void threadFunc();      // 线程函数
 
   EventLoop* loop_ GUARDED_BY(mutex_);
   bool exiting_;

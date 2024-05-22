@@ -38,6 +38,7 @@ class TimerQueue;
 /// This is an interface class, so don't expose too much details.
 /// 每个线程最多只能有一个EventLoop对象
 /// 创建了EventLoop对象的线程称为IO线程，其功能是运行事件循环(EventLoop::loop())
+/// 并发模型：one loop per thread(IO线程池) + threadpool(计算)
 class EventLoop : noncopyable
 {
  public:
