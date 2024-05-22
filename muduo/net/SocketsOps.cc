@@ -49,6 +49,14 @@ void setNonBlockAndCloseOnExec(int sockfd)
 
 }  // namespace
 
+// struct sockaddr_in6  在 IPv6 网络编程中经常用于表示 IPv6 地址和端口号的数据结构
+// struct sockaddr_in6 {
+//     sa_family_t     sin6_family;    // 地址族，通常为 AF_INET6
+//     in_port_t       sin6_port;      // 端口号
+//     uint32_t        sin6_flowinfo;  // 流信息
+//     struct in6_addr sin6_addr;      // IPv6 地址
+//     uint32_t        sin6_scope_id;  // 作用域标识符
+// };
 const struct sockaddr* sockets::sockaddr_cast(const struct sockaddr_in6* addr)
 {
   return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
@@ -59,6 +67,13 @@ struct sockaddr* sockets::sockaddr_cast(struct sockaddr_in6* addr)
   return static_cast<struct sockaddr*>(implicit_cast<void*>(addr));
 }
 
+// struct sockaddr_in  用于表示 IPv4 地址和端口号的数据结构
+// struct sockaddr_in {
+//     sa_family_t     sin_family;    // 地址族，通常为 AF_INET
+//     in_port_t       sin_port;      // 端口号
+//     struct in_addr  sin_addr;      // IPv4 地址
+//     char            sin_zero[8];   // 未使用，通常填充 0
+// };
 const struct sockaddr* sockets::sockaddr_cast(const struct sockaddr_in* addr)
 {
   return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
@@ -85,6 +100,10 @@ int sockets::createNonblockingOrDie(sa_family_t family)
 
   setNonBlockAndCloseOnExec(sockfd);
 #else
+  // SOCK_STREAM   表示创建一个面向连接的 TCP 套接字，用于支持可靠的字节流通信
+  // SOCK_NONBLOCK 表示创建的套接字是非阻塞的，即对该套接字的 I/O 操作将是非阻塞的，程序不会因为 I/O 操作而阻塞
+  // SOCK_CLOEXEC  表示在执行一个程序时，将关闭该程序中导入的额外文件描述符。这对于避免资源泄漏很有用
+  // IPPROTO_TCP   这是要使用的传输层协议，这里指定为 TCP，表示创建一个 TCP 套接字
   int sockfd = ::socket(family, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
   if (sockfd < 0)
   {
@@ -124,7 +143,7 @@ int sockets::accept(int sockfd, struct sockaddr_in6* addr)
 #endif
   if (connfd < 0)
   {
-    int savedErrno = errno;
+    int savedErrno = errno;  // 保存出错代码
     LOG_SYSERR << "Socket::accept";
     switch (savedErrno)
     {
@@ -166,6 +185,7 @@ ssize_t sockets::read(int sockfd, void *buf, size_t count)
   return ::read(sockfd, buf, count);
 }
 
+// readv和read的区别在于，接收的数据可以填充到多个缓冲区
 ssize_t sockets::readv(int sockfd, const struct iovec *iov, int iovcnt)
 {
   return ::readv(sockfd, iov, iovcnt);
@@ -184,6 +204,7 @@ void sockets::close(int sockfd)
   }
 }
 
+// 只关闭写的这一半
 void sockets::shutdownWrite(int sockfd)
 {
   if (::shutdown(sockfd, SHUT_WR) < 0)
@@ -192,6 +213,7 @@ void sockets::shutdownWrite(int sockfd)
   }
 }
 
+// 将addr转换成IP和Port的形式保存到buf中
 void sockets::toIpPort(char* buf, size_t size,
                        const struct sockaddr* addr)
 {
@@ -214,6 +236,7 @@ void sockets::toIpPort(char* buf, size_t size,
   snprintf(buf+end, size-end, ":%u", port);
 }
 
+// 将addr转换为IP形式（点分十进制）保存到buf中
 void sockets::toIp(char* buf, size_t size,
                    const struct sockaddr* addr)
 {
@@ -231,6 +254,7 @@ void sockets::toIp(char* buf, size_t size,
   }
 }
 
+// 从IP和Port转换为格式 struct sockaddr_in* 保存在addr中
 void sockets::fromIpPort(const char* ip, uint16_t port,
                          struct sockaddr_in* addr)
 {
@@ -268,6 +292,7 @@ int sockets::getSocketError(int sockfd)
   }
 }
 
+// 获取连接的本地方地址（一般是客户端）
 struct sockaddr_in6 sockets::getLocalAddr(int sockfd)
 {
   struct sockaddr_in6 localaddr;
@@ -280,6 +305,7 @@ struct sockaddr_in6 sockets::getLocalAddr(int sockfd)
   return localaddr;
 }
 
+// 获取连接的远程方地址（一般是服务器）
 struct sockaddr_in6 sockets::getPeerAddr(int sockfd)
 {
   struct sockaddr_in6 peeraddr;

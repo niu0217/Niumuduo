@@ -7,6 +7,7 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 // This is an internal header file, you should not include this.
+// 封装了socket相关的系统调用
 
 #ifndef MUDUO_NET_SOCKETSOPS_H
 #define MUDUO_NET_SOCKETSOPS_H

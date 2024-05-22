@@ -86,6 +86,7 @@ void Socket::shutdownWrite()
 
 void Socket::setTcpNoDelay(bool on)
 {
+  // true表示禁用Nagle算法，false表示启用
   int optval = on ? 1 : 0;
   ::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY,
                &optval, static_cast<socklen_t>(sizeof optval));

@@ -7,6 +7,7 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 // This is a public header file, it must only include public header files.
+// 网际地址sockaddr_in的封装
 
 #ifndef MUDUO_NET_INETADDRESS_H
 #define MUDUO_NET_INETADDRESS_H
@@ -34,6 +35,7 @@ class InetAddress : public muduo::copyable
  public:
   /// Constructs an endpoint with given port number.
   /// Mostly used in TcpServer listening.
+  // 仅仅指定端口号，不指定IP，则IP为INADDR_ANY（即0.0.0.0）
   explicit InetAddress(uint16_t port = 0, bool loopbackOnly = false, bool ipv6 = false);
 
   /// Constructs an endpoint with given ip and port.

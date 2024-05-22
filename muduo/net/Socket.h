@@ -7,6 +7,7 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 // This is an internal header file, you should not include this.
+// 用RAII方法封装socket file descriptor
 
 #ifndef MUDUO_NET_SOCKET_H
 #define MUDUO_NET_SOCKET_H
@@ -62,21 +63,27 @@ class Socket : noncopyable
   ///
   /// Enable/disable TCP_NODELAY (disable/enable Nagle's algorithm).
   ///
+  // Nagle算法可以一定程度上避免网络拥塞
+  // TCP_NODELAY选项可以禁止Nagle算法
+  // 禁用Nagle算法，可以避免连续发包出现的延迟，这对于编写低延迟的网络服务很重要
   void setTcpNoDelay(bool on);
 
   ///
   /// Enable/disable SO_REUSEADDR
   ///
+  // 设置地址重复利用
   void setReuseAddr(bool on);
 
   ///
   /// Enable/disable SO_REUSEPORT
   ///
+  // 设置端口重复利用
   void setReusePort(bool on);
 
   ///
   /// Enable/disable SO_KEEPALIVE
   ///
+  // TCP keepalive是指定期探测连接是否存在，如果应用层有心跳的话，这个选项不是必须设置的
   void setKeepAlive(bool on);
 
  private:
