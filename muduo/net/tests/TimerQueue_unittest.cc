@@ -47,7 +47,7 @@ int main()
     loop.runAfter(3.5, std::bind(print, "once3.5"));
     TimerId t45 = loop.runAfter(4.5, std::bind(print, "once4.5"));
     loop.runAfter(4.2, std::bind(cancel, t45));
-    loop.runAfter(4.8, std::bind(cancel, t45));
+    loop.runAfter(4.8, std::bind(cancel, t45));  // 可以多次取消，这次没什么效果
     loop.runEvery(2, std::bind(print, "every2"));
     TimerId t3 = loop.runEvery(3, std::bind(print, "every3"));
     loop.runAfter(9.001, std::bind(cancel, t3));
@@ -55,12 +55,12 @@ int main()
     loop.loop();
     print("main loop exits");
   }
-  sleep(1);
-  {
-    EventLoopThread loopThread;
-    EventLoop* loop = loopThread.startLoop();
-    loop->runAfter(2, printTid);
-    sleep(3);
-    print("thread loop exits");
-  }
+  // sleep(1);
+  // {
+  //   EventLoopThread loopThread;
+  //   EventLoop* loop = loopThread.startLoop();
+  //   loop->runAfter(2, printTid);
+  //   sleep(3);
+  //   print("thread loop exits");
+  // }
 }

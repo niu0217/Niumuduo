@@ -178,7 +178,7 @@ size_t EventLoop::queueSize() const
 
 TimerId EventLoop::runAt(Timestamp time, TimerCallback cb)
 {
-  return timerQueue_->addTimer(std::move(cb), time, 0.0);
+  return timerQueue_->addTimer(std::move(cb), time, 0.0); // 0.0 表示一次性定时器
 }
 
 TimerId EventLoop::runAfter(double delay, TimerCallback cb)
@@ -190,6 +190,7 @@ TimerId EventLoop::runAfter(double delay, TimerCallback cb)
 TimerId EventLoop::runEvery(double interval, TimerCallback cb)
 {
   Timestamp time(addTime(Timestamp::now(), interval));
+  // interval > 0 是一个可以重复使用的定时器
   return timerQueue_->addTimer(std::move(cb), time, interval);
 }
 
