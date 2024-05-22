@@ -125,6 +125,8 @@ TimerId TimerQueue::addTimer(TimerCallback cb,
                              double interval)
 {
   Timer* timer = new Timer(std::move(cb), when, interval);
+  /// addTimerInLoop会添加到loop_中对应的IO线程中让它处理
+  /// 所以addTimerInLoop中可以不用加锁
   loop_->runInLoop(
       std::bind(&TimerQueue::addTimerInLoop, this, timer));
   return TimerId(timer, timer->sequence());

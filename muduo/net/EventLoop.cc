@@ -32,6 +32,9 @@ const int kPollTimeMs = 10000;
 
 int createEventfd()
 {
+  // eventfd是Linux下一种事件描述符，用于支持在用户空间和内核空间之间进行事件通知。
+  // 程序通过对eventfd的读、写操作来实现进程间通信。
+  /// 创建了一个非阻塞、在execve时关闭的eventfd文件描述符
   int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
   if (evtfd < 0)
   {
@@ -84,10 +87,11 @@ EventLoop::EventLoop()
   {
     t_loopInThisThread = this;
   }
+  // 注册wakeupChannel_的读回调函数
   wakeupChannel_->setReadCallback(
       std::bind(&EventLoop::handleRead, this));
   // we are always reading the wakeupfd
-  wakeupChannel_->enableReading();
+  wakeupChannel_->enableReading(); // 将wakeupChannel_加入到Poller中进行管理
 }
 
 EventLoop::~EventLoop()
@@ -126,13 +130,14 @@ void EventLoop::loop()
     }
     currentActiveChannel_ = NULL;
     eventHandling_ = false;
-    doPendingFunctors();
+    doPendingFunctors();   // 目的：让IO线程也能执行一些计算任务
   }
 
   LOG_TRACE << "EventLoop " << this << " stop looping";
   looping_ = false;
 }
 
+// 该函数可以跨线程使用
 void EventLoop::quit()
 {
   quit_ = true;
@@ -145,14 +150,20 @@ void EventLoop::quit()
   }
 }
 
+// 在IO线程中执行某个回调函数，该函数可以跨线程使用
+// 这个函数非常非常重要！！！
+// 有了它我们就可以实现异步安全的函数调用
 void EventLoop::runInLoop(Functor cb)
 {
   if (isInLoopThread())
   {
+    /// 如果是当前IO线程调用runInLoop，则同步调用cb
     cb();
   }
   else
   {
+    /// 如果是其他线程调用runInLoop，则异步地将cb添加到队列
+    /// 以便让对应的IO线程来执行cb这个回调函数
     queueInLoop(std::move(cb));
   }
 }
@@ -164,6 +175,9 @@ void EventLoop::queueInLoop(Functor cb)
   pendingFunctors_.push_back(std::move(cb));
   }
 
+  // 调用queueInLoop的线程不是当前IO线程需要唤醒
+  // 或者调用queueInLoop的线程是当前线程，并且此时正在调用pendingfunctor，需要唤醒
+  // 只有当前IO线程的事件回调中调用queueInLoop才不需要唤醒
   if (!isInLoopThread() || callingPendingFunctors_)
   {
     wakeup();
@@ -234,7 +248,7 @@ void EventLoop::abortNotInLoopThread()
 
 void EventLoop::wakeup()
 {
-  uint64_t one = 1;
+  uint64_t one = 1;  // 8个字节的缓存区
   ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);
   if (n != sizeof one)
   {
@@ -252,6 +266,17 @@ void EventLoop::handleRead()
   }
 }
 
+/// 注意事项一：
+///   由于doPendingFunctors()调用的Functor可能再次调用queueInLoop(cb)
+///   所以，这时queueInLoop()就必须wakeup()，否则新增的cb可能就不能及时
+///   调用了
+/// 注意事项二：
+///   muduo没有反复执行doPendingFunctors()直到pendingFunctors_为空
+///   这是有意的，否则IO线程可能陷入死循环，无法处理IO事件
+/// 注意事项三：
+///   不是简单的在临界区依次调用Functor，而是把回调列表swap到functors中
+///   这样一方面减小了临界区的长度（意味着不会阻塞其他线程的queueInLoop()）
+///   也避免了死锁（因为Functor可能再次调用queueInLoop()）
 void EventLoop::doPendingFunctors()
 {
   std::vector<Functor> functors;

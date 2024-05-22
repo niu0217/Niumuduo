@@ -150,9 +150,12 @@ class EventLoop : noncopyable
   // Poller的生存周期由EventLoop来控制
   std::unique_ptr<Poller> poller_;
   std::unique_ptr<TimerQueue> timerQueue_;
-  int wakeupFd_;
+  int wakeupFd_;  // 用于eventfd
   // unlike in TimerQueue, which is an internal class,
   // we don't expose Channel to client.
+  // 注意：wakeupChannel_和EventLoop是组合关系，当EventLoop销毁的时候
+  //      wakeupChannel_也就被销毁了，也就是wakeupChannel_的生命周期
+  //      归EventLoop管
   std::unique_ptr<Channel> wakeupChannel_;
   boost::any context_;
 

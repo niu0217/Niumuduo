@@ -78,6 +78,8 @@ class TimerQueue : noncopyable
 
   EventLoop* loop_;
   const int timerfd_;
+  // timerfdChannel_和TimerQueue是组合关系
+  // TimerQueue负责管理timerfdChannel_的生存周期
   Channel timerfdChannel_;
   // Timer list sorted by expiration
   TimerList timers_; // 按到期时间排序
