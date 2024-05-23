@@ -50,12 +50,15 @@ TcpConnection::TcpConnection(EventLoop* loop,
     peerAddr_(peerAddr),
     highWaterMark_(64*1024*1024)
 {
+  // 通道可读事件到来的时候，回调TcpConnection::handleRead，_1是事件发生时间
   channel_->setReadCallback(
       std::bind(&TcpConnection::handleRead, this, _1));
   channel_->setWriteCallback(
       std::bind(&TcpConnection::handleWrite, this));
+  // 连接关闭，回调TcpConnection::handleClose
   channel_->setCloseCallback(
       std::bind(&TcpConnection::handleClose, this));
+  // 发生错误，回调TcpConnection::handleError
   channel_->setErrorCallback(
       std::bind(&TcpConnection::handleError, this));
   LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this
@@ -328,7 +331,7 @@ void TcpConnection::connectEstablished()
   channel_->tie(shared_from_this());
   channel_->enableReading();  // TcpConnection所对应的通道加入到Poller中关注
 
-  connectionCallback_(shared_from_this());
+  connectionCallback_(shared_from_this()); // connectionCallback_ == 用户回调函数onConnection
 }
 
 void TcpConnection::connectDestroyed()
@@ -339,7 +342,7 @@ void TcpConnection::connectDestroyed()
     setState(kDisconnected);
     channel_->disableAll();
 
-    connectionCallback_(shared_from_this());
+    connectionCallback_(shared_from_this()); // connectionCallback_ == 用户回调函数onConnection
   }
   channel_->remove();
 }
@@ -351,11 +354,12 @@ void TcpConnection::handleRead(Timestamp receiveTime)
   ssize_t n = inputBuffer_.readFd(channel_->fd(), &savedErrno);
   if (n > 0)
   {
+    // messageCallback_ == 用户回调函数 onMessage
     messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
   }
   else if (n == 0)
   {
-    handleClose();
+    handleClose();  // 处理连接断开
   }
   else
   {
@@ -415,9 +419,10 @@ void TcpConnection::handleClose()
   channel_->disableAll();
 
   TcpConnectionPtr guardThis(shared_from_this());
-  connectionCallback_(guardThis);
+  // connectionCallback_ == 用户回调函数onConnection
+  connectionCallback_(guardThis); 
   // must be the last line
-  closeCallback_(guardThis);
+  closeCallback_(guardThis); // closeCallback_ == TcpServer::removeConnection
 }
 
 void TcpConnection::handleError()

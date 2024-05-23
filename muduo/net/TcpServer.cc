@@ -94,8 +94,8 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
                                           localAddr,
                                           peerAddr));
   connections_[connName] = conn;
-  conn->setConnectionCallback(connectionCallback_);
-  conn->setMessageCallback(messageCallback_);
+  conn->setConnectionCallback(connectionCallback_); // connectionCallback_ == onConnection
+  conn->setMessageCallback(messageCallback_);       // messageCallback_ == onMessage
   conn->setWriteCompleteCallback(writeCompleteCallback_);
   conn->setCloseCallback(
       std::bind(&TcpServer::removeConnection, this, _1)); // FIXME: unsafe

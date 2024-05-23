@@ -107,6 +107,11 @@ class Channel : noncopyable
   int        index_; // used by Poller.  表示在poll的事件数组中的序号
   bool       logHup_;
 
+  // 当连接到来的时候，创建一个TcpConnection对象，立刻用shared_ptr来管理，引用计数为1
+  // 在Channel中维护一个 std::weak_ptr<void> tie_; 将这个shared_ptr对象赋值给tie_
+  // 引用计数仍然为1
+  //
+  // 当连接关闭的时候，在handleEvent中将tie_提升，得到一个shared_ptr对象，引用计数变为了2
   std::weak_ptr<void> tie_;
   bool tied_;
   bool eventHandling_;  // 是否处于处理事件中

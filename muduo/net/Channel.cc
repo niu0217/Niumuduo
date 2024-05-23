@@ -70,7 +70,7 @@ void Channel::handleEvent(Timestamp receiveTime)
   std::shared_ptr<void> guard;
   if (tied_)
   {
-    guard = tie_.lock();
+    guard = tie_.lock(); // 将tie_提升为shared_ptr
     if (guard)
     {
       handleEventWithGuard(receiveTime);
