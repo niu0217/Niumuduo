@@ -30,6 +30,13 @@ class InetAddress;
 /// 关心的是监听套接字的可读事件
 /// 被动连接
 /// Acceptor的生存周期由TcpServer控制
+/// 整体过程：
+///   Acceptor的acceptSocket_是监听socket，acceptChannel_用于观察此socket
+///   的可读事件（必须先注册可读事件，也就是注册到Poller中），Poller::poll监听到
+///   可读事件发生之后，将acceptChannel_加入到活动的Channel中，然后在loop.loop()
+///   中调用acceptChannel_的handleEvent
+///   因为是可读事件，因此最终调用到Acceptor::handleRead函数(在构造函数中就已经
+///   注册了acceptChannel_的读回调函数为Acceptor::handleRead函数)
 class Acceptor : noncopyable
 {
  public:
