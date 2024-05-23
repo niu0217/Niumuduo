@@ -82,6 +82,7 @@ class AtomicIntegerT : noncopyable
   T getAndSet(T newValue)
   {
     // in gcc >= 4.7: __atomic_exchange_n(&value_, newValue, __ATOMIC_SEQ_CST)
+    // 将 value_ 的值原子地设置为 newValue，并返回设置之前 value_ 的值
     return __sync_lock_test_and_set(&value_, newValue);
   }
 

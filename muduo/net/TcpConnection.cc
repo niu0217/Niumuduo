@@ -326,7 +326,7 @@ void TcpConnection::connectEstablished()
   assert(state_ == kConnecting);
   setState(kConnected);
   channel_->tie(shared_from_this());
-  channel_->enableReading();
+  channel_->enableReading();  // TcpConnection所对应的通道加入到Poller中关注
 
   connectionCallback_(shared_from_this());
 }

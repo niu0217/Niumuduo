@@ -76,19 +76,19 @@ class TcpServer : noncopyable
 
   /// Set connection callback.
   /// Not thread safe.
-  /// 事件一和二：连接建立和连接断开的回调函数
+  /// 事件一和二：设置连接到来或者连接关闭回调函数
   void setConnectionCallback(const ConnectionCallback& cb)
   { connectionCallback_ = cb; }
 
   /// Set message callback.
   /// Not thread safe.
-  /// 事件三：消息到达（文件描述符可读）
+  /// 事件三：设置消息到来回调函数
   void setMessageCallback(const MessageCallback& cb)
   { messageCallback_ = cb; }
 
   /// Set write complete callback.
   /// Not thread safe.
-  /// 半个事件：消息发送完毕
+  /// 半个事件：设置消息发送完毕回调函数
   void setWriteCompleteCallback(const WriteCompleteCallback& cb)
   { writeCompleteCallback_ = cb; }
 
@@ -102,11 +102,12 @@ class TcpServer : noncopyable
 
   typedef std::map<string, TcpConnectionPtr> ConnectionMap;
 
-  EventLoop* loop_;  // the acceptor loop
+  EventLoop* loop_;  // the acceptor loop 不一定是连接所属的loop ！！！
   const string ipPort_;
   const string name_;
   // TcpServer和Acceptor是组合关系
   // TcpServer管理着Acceptor的生存周期
+  // 在上层应用中我们不直接使用Acceptor，而是把它作为TcpServer的成员
   std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
   std::shared_ptr<EventLoopThreadPool> threadPool_;
   ConnectionCallback connectionCallback_;
