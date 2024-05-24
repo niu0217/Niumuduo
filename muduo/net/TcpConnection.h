@@ -146,13 +146,16 @@ class TcpConnection : noncopyable,
   const InetAddress peerAddr_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
+  // 数据发送完毕回调函数，即所有的用户数据都已拷贝到内核缓冲区时回调
+  // 该函数  通常在大流量时使用该函数，低流量时不需要关注
+  // outputBuffer_被清空时也会回调该函数，可以理解为低水位标回调函数
   WriteCompleteCallback writeCompleteCallback_;
-  HighWaterMarkCallback highWaterMarkCallback_;
+  HighWaterMarkCallback highWaterMarkCallback_; // 高水位标回调函数
   CloseCallback closeCallback_;
-  size_t highWaterMark_;
+  size_t highWaterMark_;  // 高水位标
   Buffer inputBuffer_;
   Buffer outputBuffer_; // FIXME: use list<Buffer> as output buffer.
-  boost::any context_;
+  boost::any context_;  // 绑定一个未知类型的上下文对象
   // FIXME: creationTime_, lastReceiveTime_
   //        bytesReceived_, bytesSent_
 };
@@ -163,3 +166,8 @@ typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 }  // namespace muduo
 
 #endif  // MUDUO_NET_TCPCONNECTION_H
+
+/// 大流量：
+///   不断生成数据，然后发送conn->send()；如果对等方接收不及时，受到滑动窗口的控制，
+///   内核发送缓冲不足，这个时候就会将用户数据添加到应用层发送缓冲区(output Buffer)
+///   可能会撑爆output Buffer
