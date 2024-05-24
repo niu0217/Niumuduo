@@ -43,10 +43,11 @@ void EventLoopThreadPool::start(const ThreadInitCallback& cb)
     snprintf(buf, sizeof buf, "%s%d", name_.c_str(), i);
     EventLoopThread* t = new EventLoopThread(cb, buf);
     threads_.push_back(std::unique_ptr<EventLoopThread>(t));
-    loops_.push_back(t->startLoop());
+    loops_.push_back(t->startLoop()); // 启动EventLoopThread线程，在进入事件循环之前，会调用cb
   }
   if (numThreads_ == 0 && cb)
   {
+    // 只有一个EventLoop，在这个EventLoop进入事件循环之前，调用cb
     cb(baseLoop_);
   }
 }

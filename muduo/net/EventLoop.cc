@@ -36,6 +36,7 @@ int createEventfd()
   // 程序通过对eventfd的读、写操作来实现进程间通信。
   /// 创建了一个非阻塞、在execve时关闭的eventfd文件描述符
   int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+  LOG_DEBUG << "EventLoop:wakeupFd_ = " << evtfd;
   if (evtfd < 0)
   {
     LOG_SYSERR << "Failed in eventfd";

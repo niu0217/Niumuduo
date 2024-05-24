@@ -34,6 +34,7 @@ int createTimerfd()
 {
   int timerfd = ::timerfd_create(CLOCK_MONOTONIC,
                                  TFD_NONBLOCK | TFD_CLOEXEC);
+  LOG_DEBUG << "TimerQueue::timerfd_ = " << timerfd;
   if (timerfd < 0)
   {
     LOG_SYSFATAL << "Failed in timerfd_create";

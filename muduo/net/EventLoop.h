@@ -7,6 +7,15 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 // This is a public header file, it must only include public header files.
+///
+/// 使用的文件描述符
+///   0、1、2：系统预留的
+///   3:      EPollPoller::epollfd_
+///   4:      TimerQueue::timerfd_
+///   5:      EventLoop:wakeupFd_
+///   6:      监听fd = Acceptor::acceptSocket_.fd()
+///   7:      Acceptor::idleFd_
+///   8:      分配给第一个客户连接的描述符
 
 #ifndef MUDUO_NET_EVENTLOOP_H
 #define MUDUO_NET_EVENTLOOP_H

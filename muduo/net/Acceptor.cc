@@ -29,6 +29,8 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reusepor
     listening_(false),
     idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
+  LOG_DEBUG << "监听fd = Acceptor::acceptSocket_.fd() = " << acceptSocket_.fd();
+  LOG_DEBUG << "Acceptor::idleFd_ = " << idleFd_;
   assert(idleFd_ >= 0);
   acceptSocket_.setReuseAddr(true);
   acceptSocket_.setReusePort(reuseport);
@@ -62,6 +64,7 @@ void Acceptor::handleRead()
   {
     // string hostport = peerAddr.toIpPort();
     // LOG_TRACE << "Accepts of " << hostport;
+    // newConnectionCallback_ == TcpServer::newConnection
     if (newConnectionCallback_)
     {
       newConnectionCallback_(connfd, peerAddr);
