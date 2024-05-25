@@ -7,6 +7,7 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 // This is an internal header file, you should not include this.
+// HTTP协议解析类
 
 #ifndef MUDUO_NET_HTTP_HTTPCONTEXT_H
 #define MUDUO_NET_HTTP_HTTPCONTEXT_H
@@ -50,7 +51,7 @@ class HttpContext : public muduo::copyable
   {
     state_ = kExpectRequestLine;
     HttpRequest dummy;
-    request_.swap(dummy);
+    request_.swap(dummy);  // 将request_置为空
   }
 
   const HttpRequest& request() const
@@ -62,8 +63,8 @@ class HttpContext : public muduo::copyable
  private:
   bool processRequestLine(const char* begin, const char* end);
 
-  HttpRequestParseState state_;
-  HttpRequest request_;
+  HttpRequestParseState state_;  // 请求解析状态
+  HttpRequest request_;          // http请求
 };
 
 }  // namespace net

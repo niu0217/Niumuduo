@@ -59,7 +59,7 @@ void HttpServer::onConnection(const TcpConnectionPtr& conn)
 {
   if (conn->connected())
   {
-    conn->setContext(HttpContext());
+    conn->setContext(HttpContext()); // TcpConnection与一个HttpContext绑定在一起了
   }
 }
 
@@ -78,7 +78,7 @@ void HttpServer::onMessage(const TcpConnectionPtr& conn,
   if (context->gotAll())
   {
     onRequest(conn, context->request());
-    context->reset();
+    context->reset(); // 本次请求处理完毕，重置HttpContext，适合长连接
   }
 }
 

@@ -7,6 +7,7 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 // This is a public header file, it must only include public header files.
+// HTTP 服务器类封装
 
 #ifndef MUDUO_NET_HTTP_HTTPSERVER_H
 #define MUDUO_NET_HTTP_HTTPSERVER_H
@@ -59,6 +60,8 @@ class HttpServer : noncopyable
   void onRequest(const TcpConnectionPtr&, const HttpRequest&);
 
   TcpServer server_;
+  // 在处理http请求（即调用onRequest）的过程中回调此函数
+  // 对请求进行具体的处理
   HttpCallback httpCallback_;
 };
 

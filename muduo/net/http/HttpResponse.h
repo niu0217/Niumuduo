@@ -7,6 +7,7 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 // This is a public header file, it must only include public header files.
+// HTTP响应类
 
 #ifndef MUDUO_NET_HTTP_HTTPRESPONSE_H
 #define MUDUO_NET_HTTP_HTTPRESPONSE_H
@@ -28,10 +29,10 @@ class HttpResponse : public muduo::copyable
   enum HttpStatusCode
   {
     kUnknown,
-    k200Ok = 200,
-    k301MovedPermanently = 301,
-    k400BadRequest = 400,
-    k404NotFound = 404,
+    k200Ok = 200,  // 成功
+    k301MovedPermanently = 301,  // 重定向  请求的页面永久性移至另一个地址
+    k400BadRequest = 400,        // 错误的请求，语法格式有错，服务器无法处理此请求
+    k404NotFound = 404,          // 请求页面不存在
   };
 
   explicit HttpResponse(bool close)
@@ -52,6 +53,7 @@ class HttpResponse : public muduo::copyable
   bool closeConnection() const
   { return closeConnection_; }
 
+  // 设置文档媒体类型（MIME）
   void setContentType(const string& contentType)
   { addHeader("Content-Type", contentType); }
 
@@ -62,15 +64,16 @@ class HttpResponse : public muduo::copyable
   void setBody(const string& body)
   { body_ = body; }
 
+  // 将HttpResponse添加到Buffer中，以便发送给客户端
   void appendToBuffer(Buffer* output) const;
 
  private:
   std::map<string, string> headers_;
-  HttpStatusCode statusCode_;
+  HttpStatusCode statusCode_;  // 状态响应码
   // FIXME: add http version
-  string statusMessage_;
-  bool closeConnection_;
-  string body_;
+  string statusMessage_;       // 状态响应码对应的文本信息
+  bool closeConnection_;       // 是否关闭连接
+  string body_;                // 实体
 };
 
 }  // namespace net

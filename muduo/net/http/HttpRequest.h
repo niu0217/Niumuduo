@@ -7,6 +7,7 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 // This is a public header file, it must only include public header files.
+// HTTP请求类
 
 #ifndef MUDUO_NET_HTTP_HTTPREQUEST_H
 #define MUDUO_NET_HTTP_HTTPREQUEST_H
@@ -132,19 +133,26 @@ class HttpRequest : public muduo::copyable
   Timestamp receiveTime() const
   { return receiveTime_; }
 
+  // 假设一个头部为：
+  //   "Accept-Encoding: identity\r\n  "
+  //   colon是":"的位置
   void addHeader(const char* start, const char* colon, const char* end)
   {
-    string field(start, colon);
+    string field(start, colon);  // field == "Accept-Encoding"
     ++colon;
+    // 去除空格，让colon指向 "identity\r\n  "
     while (colon < end && isspace(*colon))
     {
       ++colon;
     }
-    string value(colon, end);
+    string value(colon, end);  // value == "identity\r\n  "
+    // 去除空格，让value == "identity\r\n"
     while (!value.empty() && isspace(value[value.size()-1]))
     {
       value.resize(value.size()-1);
     }
+    // 此时：field == "Accept-Encoding"
+    //      value == "identity\r\n"
     headers_[field] = value;
   }
 
@@ -173,11 +181,11 @@ class HttpRequest : public muduo::copyable
   }
 
  private:
-  Method method_;
-  Version version_;
-  string path_;
+  Method method_;    // 请求方法
+  Version version_;  // 协议版本 1.0/1.1
+  string path_;      // 请求路径
   string query_;
-  Timestamp receiveTime_;
+  Timestamp receiveTime_;  // 请求时间
   std::map<string, string> headers_;
 };
 
