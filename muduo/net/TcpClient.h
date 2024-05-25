@@ -73,15 +73,16 @@ class TcpClient : noncopyable
   EventLoop* loop_;
   // TcpClient和Connector是组合关系
   // Connector的生命周期由TcpClient控制
+  // 用于主动发起连接
   ConnectorPtr connector_; // avoid revealing Connector
   const string name_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;
-  bool retry_;   // atomic
+  bool retry_;   // atomic 是指连接建立之后又断开的时候是否重连
   bool connect_; // atomic
   // always in loop thread
-  int nextConnId_;
+  int nextConnId_;  // name_ + nextConnId_ 用于标识一个连接
   mutable MutexLock mutex_;
   // TcpClient和TcpConnection是聚合关系
   // 一个TcpClient对应一个TcpConnection，但是不管理它的生存周期

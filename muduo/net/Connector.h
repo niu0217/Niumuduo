@@ -47,8 +47,8 @@ class Connector : noncopyable,
 
  private:
   enum States { kDisconnected, kConnecting, kConnected };
-  static const int kMaxRetryDelayMs = 30*1000;
-  static const int kInitRetryDelayMs = 500;
+  static const int kMaxRetryDelayMs = 30*1000; // 30s 最大重连延迟时间
+  static const int kInitRetryDelayMs = 500;  // 0.5s 初始状态 连接不上，0.5秒后重连
 
   void setState(States s) { state_ = s; }
   void startInLoop();
@@ -70,7 +70,7 @@ class Connector : noncopyable,
   States state_;  // FIXME: use atomic variable
   std::unique_ptr<Channel> channel_;
   NewConnectionCallback newConnectionCallback_;
-  int retryDelayMs_;
+  int retryDelayMs_;  // 重连延迟时间（单位：毫秒）
 };
 
 }  // namespace net

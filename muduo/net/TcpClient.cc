@@ -95,6 +95,7 @@ TcpClient::~TcpClient()
   }
   else
   {
+    // 这种情况说明connector处于未连接状态  将connector_停止即可
     connector_->stop();
     // FIXME: HACK
     loop_->runAfter(1, std::bind(&detail::removeConnector, connector_));
@@ -110,6 +111,7 @@ void TcpClient::connect()
   connector_->start();
 }
 
+// 用于连接已建立的情况下，关闭连接
 void TcpClient::disconnect()
 {
   connect_ = false;
@@ -154,7 +156,7 @@ void TcpClient::newConnection(int sockfd)
       std::bind(&TcpClient::removeConnection, this, _1)); // FIXME: unsafe
   {
     MutexLockGuard lock(mutex_);
-    connection_ = conn;
+    connection_ = conn;  // 保存TcpConnection
   }
   conn->connectEstablished();
 }
@@ -175,6 +177,7 @@ void TcpClient::removeConnection(const TcpConnectionPtr& conn)
   {
     LOG_INFO << "TcpClient::connect[" << name_ << "] - Reconnecting to "
              << connector_->serverAddress().toIpPort();
+    // 这里的重连是指连接建立成功之后被断开的重连         
     connector_->restart();
   }
 }

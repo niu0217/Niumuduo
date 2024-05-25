@@ -37,6 +37,7 @@ Connector::~Connector()
   assert(!channel_);
 }
 
+// 可以跨线程使用
 void Connector::start()
 {
   connect_ = true;
@@ -71,7 +72,7 @@ void Connector::stopInLoop()
   {
     setState(kDisconnected);
     int sockfd = removeAndResetChannel();
-    retry(sockfd);
+    retry(sockfd);   // 这里并非要重连，只是调用了sockets::close(sockfd);
   }
 }
 
@@ -83,9 +84,9 @@ void Connector::connect()
   switch (savedErrno)
   {
     case 0:
-    case EINPROGRESS:
+    case EINPROGRESS:  // 非阻塞套接字，未连接成功返回码是EINPROGRESS表示正在连接
     case EINTR:
-    case EISCONN:
+    case EISCONN:      // 连接成功
       connecting(sockfd);
       break;
 
@@ -94,7 +95,7 @@ void Connector::connect()
     case EADDRNOTAVAIL:
     case ECONNREFUSED:
     case ENETUNREACH:
-      retry(sockfd);
+      retry(sockfd);  // 重连
       break;
 
     case EACCES:
@@ -129,6 +130,7 @@ void Connector::connecting(int sockfd)
 {
   setState(kConnecting);
   assert(!channel_);
+  // channel_与sockfd关联
   channel_.reset(new Channel(loop_, sockfd));
   channel_->setWriteCallback(
       std::bind(&Connector::handleWrite, this)); // FIXME: unsafe
@@ -137,7 +139,7 @@ void Connector::connecting(int sockfd)
 
   // channel_->tie(shared_from_this()); is not working,
   // as channel_ is not managed by shared_ptr
-  channel_->enableWriting();
+  channel_->enableWriting();  // 关注可写事件
 }
 
 int Connector::removeAndResetChannel()
@@ -146,13 +148,14 @@ int Connector::removeAndResetChannel()
   channel_->remove();
   int sockfd = channel_->fd();
   // Can't reset channel_ here, because we are inside Channel::handleEvent
+  // 不能在这里重置channel_，因为正在调用Channel::handleEvent
   loop_->queueInLoop(std::bind(&Connector::resetChannel, this)); // FIXME: unsafe
   return sockfd;
 }
 
 void Connector::resetChannel()
 {
-  channel_.reset();
+  channel_.reset();  // channel_置空
 }
 
 void Connector::handleWrite()
@@ -162,6 +165,8 @@ void Connector::handleWrite()
   if (state_ == kConnecting)
   {
     int sockfd = removeAndResetChannel();
+    // socket可写并不意味着连接一定建立成功
+    // 还需要getSocketError来检验一下
     int err = sockets::getSocketError(sockfd);
     if (err)
     {
@@ -206,6 +211,7 @@ void Connector::handleError()
   }
 }
 
+// 采用back-off策略重连 即重连时间逐渐延长0.5s 1s 2s 4s ... 直到30s
 void Connector::retry(int sockfd)
 {
   sockets::close(sockfd);
