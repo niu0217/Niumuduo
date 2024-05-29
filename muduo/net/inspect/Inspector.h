@@ -39,6 +39,10 @@ class Inspector : noncopyable
   ~Inspector();
 
   /// Add a Callback for handling the special uri : /mudule/command
+  // 举例：
+  //   add("proc", "pid", ProcessInspector::pid, "print pid");
+  //   这样 http://127.0.0.1:12345/proc/pid 这个http请求就会调用函数
+  //   ProcessInspector::pid来处理，help是一些帮助信息
   void add(const string& module,
            const string& command,
            const Callback& cb,
