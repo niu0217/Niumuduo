@@ -32,7 +32,7 @@ void onConnection(const TcpConnectionPtr& conn)
     {
       conn->setContext(fp);
       char buf[kBufSize];
-      size_t nread = ::fread(buf, 1, sizeof buf, fp);
+      size_t nread = ::fread(buf, 1, sizeof buf, fp);  // 读取64kb的数据到buf中
       conn->send(buf, static_cast<int>(nread));
     }
     else
@@ -73,6 +73,9 @@ void onWriteComplete(const TcpConnectionPtr& conn)
   }
 }
 
+/*
+ 功能：一块一块地发送文件，减少内存使用，用到了WriteCompleteCallback
+*/
 int main(int argc, char* argv[])
 {
   LOG_INFO << "pid = " << getpid();

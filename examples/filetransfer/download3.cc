@@ -31,12 +31,12 @@ void onConnection(const TcpConnectionPtr& conn)
     FILE* fp = ::fopen(g_file, "rb");
     if (fp)
     {
-      FilePtr ctx(fp, ::fclose);
-      conn->setContext(ctx);
+      FilePtr ctx(fp, ::fclose);  // ctx的引用计数变为0时，调用fclose关闭文件指针
+      conn->setContext(ctx);      // 将ctx和conn的生命周期绑定在一起，此时ctx的引用计数为2
       char buf[kBufSize];
       size_t nread = ::fread(buf, 1, sizeof buf, fp);
       conn->send(buf, static_cast<int>(nread));
-    }
+    }  // 这里cxt的引用计数变为1，当conn被销毁的时候，ctx的引用计数才变为0
     else
     {
       conn->shutdown();

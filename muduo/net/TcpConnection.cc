@@ -400,6 +400,7 @@ void TcpConnection::handleWrite()
           loop_->queueInLoop(std::bind(writeCompleteCallback_, shared_from_this()));
         }
         // 发送缓冲区已清空并且连接状态是kDisconnecting，要关闭连接
+        // 说明我们之前就已经调用过了shutdown函数，这时就需要关闭连接了
         if (state_ == kDisconnecting)
         {
           shutdownInLoop();
