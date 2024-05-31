@@ -4,6 +4,11 @@
 #include "muduo/net/TcpServer.h"
 
 // RFC 862
+// 网络编程关注的三个半事件：
+//   连接建立
+//   连接关闭
+//   消息到达
+//   消息发送完毕（对于低流量的服务来说，通常不需要关注）
 class EchoServer
 {
  public:

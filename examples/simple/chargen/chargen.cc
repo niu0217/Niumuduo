@@ -27,6 +27,7 @@ ChargenServer::ChargenServer(EventLoop* loop,
   }
 
   string line;
+  // ASCII码的33到126
   for (int i = 33; i < 127; ++i)
   {
     line.push_back(char(i));
