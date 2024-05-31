@@ -118,13 +118,22 @@ class SudokuServer
   Timestamp startTime_;
 };
 
+/*
+ 模式：采用多个IO线程来处理 multiple reactor
+ main reactor 负责listenfd accept
+ sub reactor  负责connfd
+ 采用roundbin
+   来一个连接，就选择下一个EventLoop
+   这样就让多个连接分配给若干个EventLoop来处理，而每个EventLoop属于一个IO线程
+   也就意味着多个连接分配给若干个IO线程来处理
+*/
 int main(int argc, char* argv[])
 {
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
   int numThreads = 0;
   if (argc > 1)
   {
-    numThreads = atoi(argv[1]);
+    numThreads = atoi(argv[1]);  // IO线程的数量
   }
   EventLoop loop;
   InetAddress listenAddr(9981);

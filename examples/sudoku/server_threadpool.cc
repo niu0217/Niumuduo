@@ -33,7 +33,7 @@ class SudokuServer
   void start()
   {
     LOG_INFO << "starting " << numThreads_ << " threads.";
-    threadPool_.start(numThreads_);
+    threadPool_.start(numThreads_);  // 启动的是计算线程池
     server_.start();
   }
 
@@ -96,6 +96,7 @@ class SudokuServer
 
     if (puzzle.size() == implicit_cast<size_t>(kCells))
     {
+      // 采用计算线程池的方式来运行数独求解程序
       threadPool_.run(std::bind(&solve, conn, puzzle, id));
     }
     else
@@ -111,6 +112,7 @@ class SudokuServer
   {
     LOG_DEBUG << conn->name();
     string result = solveSudoku(puzzle);
+    /// 注意：发送还是由TcpConnectionPtr对应的IO线程来发送的
     if (id.empty())
     {
       conn->send(result+"\r\n");
@@ -127,13 +129,21 @@ class SudokuServer
   Timestamp startTime_;
 };
 
+/*
+ 数独求解服务器，既是IO密集型，又是计算密集型的一个服务
+ 我们采用 IO线程池 + 计算线程池
+ 计算时间如果比较久，就会使得IO线程阻塞，IO线程很快就用尽了，就不能处理大量的并发连接
+
+ 特别注意：
+   这个程序采用的是：单线程 + 计算线程池的方案，当然我们也可以采用 多IO线程 + 计算线程池的方案
+*/
 int main(int argc, char* argv[])
 {
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
   int numThreads = 0;
   if (argc > 1)
   {
-    numThreads = atoi(argv[1]);
+    numThreads = atoi(argv[1]);  // 注意：这个表示的是计算线程池的个数，不是IO线程的个数
   }
   EventLoop loop;
   InetAddress listenAddr(9981);

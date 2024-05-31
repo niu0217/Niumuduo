@@ -116,6 +116,9 @@ class SudokuServer
 
 int main(int argc, char* argv[])
 {
+  /// 模式：reactor
+  /// 单Reactor单线程
+  /// 主线程既负责监听套接字还负责已连接套接字
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
   EventLoop loop;
   InetAddress listenAddr(9981);
