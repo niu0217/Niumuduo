@@ -45,6 +45,7 @@ class ChatServer : noncopyable
              << conn->localAddress().toIpPort() << " is "
              << (conn->connected() ? "UP" : "DOWN");
 
+    // 不需要加锁，因为每个线程都有自己的ConnectionList
     if (conn->connected())
     {
       LocalConnections::instance().insert(conn);
@@ -63,10 +64,14 @@ class ChatServer : noncopyable
     LOG_DEBUG;
 
     MutexLockGuard lock(mutex_);
+    // 转发消息给所有客户端，高效转发（多线程来转发）
     for (std::set<EventLoop*>::iterator it = loops_.begin();
         it != loops_.end();
         ++it)
     {
+      // 1、让对应的IO线程来执行distributeMessage
+      // 2、distributeMessage放到IO线程队列中之心，因此，这里的mutex锁竞争大大减小
+      // 3、distributeMessage不受mutex保护
       (*it)->queueInLoop(f);
     }
     LOG_DEBUG;
@@ -86,6 +91,7 @@ class ChatServer : noncopyable
     LOG_DEBUG << "end";
   }
 
+  // 这个函数在每个IO线程启动前被调用
   void threadInit(EventLoop* loop)
   {
     assert(LocalConnections::pointer() == NULL);
@@ -97,7 +103,8 @@ class ChatServer : noncopyable
 
   TcpServer server_;
   LengthHeaderCodec codec_;
-  typedef ThreadLocalSingleton<ConnectionList> LocalConnections;
+  // 定义线程局部单例变量，每个线程都有一个ConnectionList实例
+  typedef ThreadLocalSingleton<ConnectionList> LocalConnections; // 这句话提前是不是更好？
 
   MutexLock mutex_;
   std::set<EventLoop*> loops_ GUARDED_BY(mutex_);
@@ -126,3 +133,11 @@ int main(int argc, char* argv[])
 }
 
 
+/*
+ 消息转发机制：
+   以前：T1线程转发消息给所有的客户端
+   现在：假设我们创建了4个线程   T1线程转发消息给C1、T2线程转发消息给C2
+                             T3线程转发消息给C3、T4线程转发消息给C4 
+                             T1线程转发消息给C5、......
+        这样做的好处就是降低了hello消息到达第一个客户端与最后一个客户端之间的延迟
+*/

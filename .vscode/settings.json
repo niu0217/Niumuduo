@@ -69,5 +69,6 @@
         "typeinfo": "cpp",
         "variant": "cpp"
     },
-    "C_Cpp.default.compileCommands": "compile_commands.json"
+    "C_Cpp.default.compileCommands": "compile_commands.json",
+    "editor.fontSize": 20
 }
