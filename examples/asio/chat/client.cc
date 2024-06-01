@@ -36,8 +36,11 @@ class ChatClient : noncopyable
     client_.disconnect();
   }
 
+  // 该函数在主线程中使用
   void write(const StringPiece& message)
   {
+    // 访问connection_需要加锁保护
+    // 因为在IO线程的onConnection函数中也会访问 connection_
     MutexLockGuard lock(mutex_);
     if (connection_)
     {
@@ -46,12 +49,14 @@ class ChatClient : noncopyable
   }
 
  private:
+  /// 特别注意：该函数在IO线程中执行，IO线程与主线程不在同一个线程
   void onConnection(const TcpConnectionPtr& conn)
   {
     LOG_INFO << conn->localAddress().toIpPort() << " -> "
              << conn->peerAddress().toIpPort() << " is "
              << (conn->connected() ? "UP" : "DOWN");
 
+    // 需要保护一下 connection_
     MutexLockGuard lock(mutex_);
     if (conn->connected())
     {
@@ -81,6 +86,8 @@ int main(int argc, char* argv[])
   LOG_INFO << "pid = " << getpid();
   if (argc > 2)
   {
+    /// 主线程写数据
+    /// IO线程处理连接
     EventLoopThread loopThread;
     uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
     InetAddress serverAddr(argv[1], port);

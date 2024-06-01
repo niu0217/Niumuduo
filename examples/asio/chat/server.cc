@@ -22,6 +22,8 @@ class ChatServer : noncopyable
   {
     server_.setConnectionCallback(
         std::bind(&ChatServer::onConnection, this, _1));
+    // 连接发送消息的时候回调函数 LengthHeaderCodec::onMessage
+    // 在这个函数中就会将字节流消息解码了
     server_.setMessageCallback(
         std::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
   }
@@ -38,6 +40,7 @@ class ChatServer : noncopyable
              << conn->localAddress().toIpPort() << " is "
              << (conn->connected() ? "UP" : "DOWN");
 
+    // 只有一个IO线程，所以connections_不需要加锁
     if (conn->connected())
     {
       connections_.insert(conn);
@@ -52,18 +55,21 @@ class ChatServer : noncopyable
                        const string& message,
                        Timestamp)
   {
+    // 只有一个IO线程，因而这里的connections_不需要加锁
+    // 转发消息给所有客户端
     for (ConnectionList::iterator it = connections_.begin();
         it != connections_.end();
         ++it)
     {
+      // 将 message 加码，然后发送给连接对应的客户端
       codec_.send(get_pointer(*it), message);
     }
   }
 
   typedef std::set<TcpConnectionPtr> ConnectionList;
   TcpServer server_;
-  LengthHeaderCodec codec_;
-  ConnectionList connections_;
+  LengthHeaderCodec codec_;     // 消息编解码
+  ConnectionList connections_;  // 连接列表
 };
 
 int main(int argc, char* argv[])
