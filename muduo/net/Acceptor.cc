@@ -46,6 +46,9 @@ Acceptor::~Acceptor()
   ::close(idleFd_);
 }
 
+/// 该函数底层调用了linux的函数listen( )，开启对acceptSocket_的监听
+/// 同时将acceptChannel及其感兴趣事件（可读事件）注册到main EventLoop的
+/// 事件监听器上。换言之就是让main EventLoop事件监听器去监听acceptSocket_
 void Acceptor::listen()
 {
   loop_->assertInLoopThread();
@@ -54,6 +57,8 @@ void Acceptor::listen()
   acceptChannel_.enableReading();
 }
 
+/// 功能：接受新连接，并且以负载均衡的选择方式选择一个sub EventLoop，
+///      并把这个新连接分发到这个subEventLoop上。
 void Acceptor::handleRead()
 {
   loop_->assertInLoopThread();

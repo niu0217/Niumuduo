@@ -358,6 +358,8 @@ void TcpConnection::connectDestroyed()
   channel_->remove();
 }
 
+// 负责处理Tcp连接的可读事件，它会将客户端发送来的数据拷贝到用户缓冲区中（inputBuffer_），
+// 然后再调用messageCallback_ [连接建立后的处理函数]。
 void TcpConnection::handleRead(Timestamp receiveTime)
 {
   loop_->assertInLoopThread();

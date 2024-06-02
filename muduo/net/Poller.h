@@ -38,6 +38,13 @@ class Poller : noncopyable
 
   /// Polls the I/O events.
   /// Must be called in the loop thread.
+  // Poller的核心函数，当外部调用poll方法的时候，该方法底层是通过 epoll_wait 获取这个事件
+  // 监听器上发生事件的fd及其对应发生的事件，我们知道每个fd都是由一个Channel封装的，通过哈希表
+  // channels_可以根据fd找到封装这个fd的Channel。
+  //
+  // 将事件监听器监听到该fd发生的事件写进这个Chanel中的revents_成员变量中。然后把这个Channel
+  // 装进一个activeChannels中（它是一个vector<Channel*>）
+  // 这样，当外界调用完poll之后就可以拿到事件监听器的监听结果
   virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels) = 0;
 
   /// Changes the interested I/O events.
@@ -61,6 +68,7 @@ class Poller : noncopyable
   typedef std::map<int, Channel*> ChannelMap;
   // fd和Channel*的映射关系
   // Poller和Channel是关联关系，Poller不管理Channel的生存周期
+  // 保管所有- 注册在你这个Poller上的Channel
   ChannelMap channels_;  
 
  private:

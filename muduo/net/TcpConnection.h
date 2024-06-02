@@ -36,6 +36,9 @@ class Socket;
 
 ///
 /// TCP connection, for both client and server usage.
+/// 
+/// TcpConnection用于SubEventLoop中，对连接套接字fd及其相关
+/// 方法进行封装（读消息事件、发送消息事件、连接关闭事件、错误事件等）。
 ///
 /// This is an interface class, so don't expose too much details.
 class TcpConnection : noncopyable,
@@ -131,6 +134,7 @@ class TcpConnection : noncopyable,
   void startReadInLoop();
   void stopReadInLoop();
 
+  // 该Tcp连接的Channel注册到了哪一个sub EventLoop上。这个loop_就是那一个sub EventLoop。
   EventLoop* loop_;
   const string name_;
   StateE state_;  // FIXME: use atomic variable
@@ -138,18 +142,18 @@ class TcpConnection : noncopyable,
   // we don't expose those classes to client.
   // TcpConnection和Socket是组合关系
   // TcpConnection管理着Socket的生存周期
-  std::unique_ptr<Socket> socket_;
+  std::unique_ptr<Socket> socket_; // 用于保存已连接套接字文件描述符。
   // TcpConnection和Channel也是组合关系
   // TcpConnection管理着Channel的生存周期
   std::unique_ptr<Channel> channel_;
   const InetAddress localAddr_;
   const InetAddress peerAddr_;
-  ConnectionCallback connectionCallback_;
-  MessageCallback messageCallback_;
+  ConnectionCallback connectionCallback_; // 用户定义的回调函数
+  MessageCallback messageCallback_;       // 用户定义的回调函数
   // 数据发送完毕回调函数，即所有的用户数据都已拷贝到内核缓冲区时回调
   // 该函数  通常在大流量时使用该函数，低流量时不需要关注
   // outputBuffer_被清空时也会回调该函数，可以理解为低水位标回调函数
-  WriteCompleteCallback writeCompleteCallback_;
+  WriteCompleteCallback writeCompleteCallback_; // 用户定义的回调函数
   HighWaterMarkCallback highWaterMarkCallback_; // 高水位标回调函数
   CloseCallback closeCallback_;
   size_t highWaterMark_;  // 高水位标

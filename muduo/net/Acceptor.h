@@ -27,6 +27,10 @@ class InetAddress;
 ///
 /// Acceptor of incoming TCP connections.
 ///
+/// 接受新用户连接并分发连接给SubReactor（SubEventLoop）
+/// Acceptor用于main EventLoop中，对服务器监听套接字fd及其相关方法进行
+/// 封装（监听、接受连接、分发连接给SubEventLoop等）
+///
 /// 关心的是监听套接字的可读事件
 /// 被动连接
 /// Acceptor的生存周期由TcpServer控制
@@ -62,9 +66,14 @@ class Acceptor : noncopyable
   // Channel的handleEvent会回调handleRead()
   void handleRead();
 
+  // 监听套接字的fd由哪个EventLoop负责循环监听以及处理相应事件，
+  // 其实这个EventLoop就是main EventLoop。
   EventLoop* loop_;
-  Socket acceptSocket_;
-  Channel acceptChannel_;
+  Socket acceptSocket_;   // 这个是服务器监听套接字的文件描述符
+  Channel acceptChannel_; // 这是个Channel类，把acceptSocket_及其感兴趣事件和事件对应的处理函数都封装进去。
+  // TcpServer构造函数中将- TcpServer::newConnection( )函数注册给了这个成员变量。
+  // 这个- TcpServer::newConnection函数的功能是公平的选择一个subEventLoop，并把
+  // 已经接受的连接分发给这个subEventLoop。
   NewConnectionCallback newConnectionCallback_;
   bool listening_;
   int idleFd_;

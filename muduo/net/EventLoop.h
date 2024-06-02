@@ -184,3 +184,11 @@ class EventLoop : noncopyable
 }  // namespace muduo
 
 #endif  // MUDUO_NET_EVENTLOOP_H
+
+/*
+  EventLoop的作用：
+    起到了一个驱动循环的作用，Poller负责从事件监听器上获取监听结果，而Channel类则在其中起到了将fd
+    及其相关属性封装的作用，将fd及其感兴趣事件和发生的事件以及不同事件对应的回调函数封装在一起，这样
+    在各个模块中传递更加方便。
+    总结就是：持续循环的获取监听结果并且根据结果调用处理函数。
+*/

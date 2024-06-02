@@ -56,10 +56,13 @@ class Channel : noncopyable
 
   int fd() const { return fd_; }
   int events() const { return events_; }
+  // 当事件监听器监听到某个文件描述符发生了什么事件，通过这个函数
+  // 可以将这个文件描述符实际发生的事件封装进这个Channel中。
   void set_revents(int revt) { revents_ = revt; } // used by pollers
   // int revents() const { return revents_; }
   bool isNoneEvent() const { return events_ == kNoneEvent; }
 
+  /// 将Channel中的文件描述符及其感兴趣事件注册到事件监听器上或从事件监听器上移除
   void enableReading() { events_ |= kReadEvent; update(); }
   void disableReading() { events_ &= ~kReadEvent; update(); }
   void enableWriting() { events_ |= kWriteEvent; update(); }
@@ -87,7 +90,11 @@ class Channel : noncopyable
   // 调用关系：调用EventLoop的updateChannel()
   //         ==>  再调用Poller的updateChannel(channel)
   // 将fd_的可读可写等事件注册到Poller中
+  // 至此，一个fd对应一个Channel
   void update();
+  // 让每个发生了事件的Channel调用自己保管的事件处理函数，每个Channel会根据自己文件
+  // 描述符实际发生的事件（通过Channel中的revents_可知）和感兴趣的事件（通过Channel
+  // 中的events_可知）来调用对应的事件处理函数
   void handleEventWithGuard(Timestamp receiveTime);
 
   static const int kNoneEvent;
@@ -126,3 +133,11 @@ class Channel : noncopyable
 }  // namespace muduo
 
 #endif  // MUDUO_NET_CHANNEL_H
+
+/*
+  Channel类的作用：
+    保姆；一个文件描述符会发生可读、可写、关闭、错误事件。当发生这些事件后，就需要调用相应的处理
+    函数来处理。外部通过调用setReadCallback、setWriteCallback、setCloseCallback、
+    setErrorCallback这四个函数可以将事件处理函数存放在Channel类中，当需要调用的时候
+    就可以直接拿出来调用即可。
+*/

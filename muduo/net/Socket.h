@@ -84,6 +84,7 @@ class Socket : noncopyable
   /// Enable/disable SO_KEEPALIVE
   ///
   // TCP keepalive是指定期探测连接是否存在，如果应用层有心跳的话，这个选项不是必须设置的
+  // 它和应用层的keeplive是不一样的
   void setKeepAlive(bool on);
 
  private:
