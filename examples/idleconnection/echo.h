@@ -51,8 +51,8 @@ class EchoServer
   };
   typedef std::shared_ptr<Entry> EntryPtr;
   typedef std::weak_ptr<Entry> WeakEntryPtr;
-  typedef std::unordered_set<EntryPtr> Bucket;
-  typedef boost::circular_buffer<Bucket> WeakConnectionList;
+  typedef std::unordered_set<EntryPtr> Bucket;  // 环形缓冲区每个格子存放的是一个hash_set
+  typedef boost::circular_buffer<Bucket> WeakConnectionList;  // 环形缓冲区
 
   muduo::net::TcpServer server_;
   WeakConnectionList connectionBuckets_;

@@ -39,7 +39,7 @@ void EchoServer::onConnection(const TcpConnectionPtr& conn)
   if (conn->connected())
   {
     EntryPtr entry(new Entry(conn));
-    connectionBuckets_.back().insert(entry);
+    connectionBuckets_.back().insert(entry);  // 插入到队尾，此时引用计数为2
     dumpConnectionBuckets();
     WeakEntryPtr weakEntry(entry);
     conn->setContext(weakEntry);
