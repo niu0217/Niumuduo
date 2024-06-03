@@ -6,7 +6,7 @@
 #include <sys/resource.h>
 #include <unistd.h>
 
-off_t kRollSize = 500*1000*1000;
+off_t kRollSize = 500*1000*1000; // 超过500MB文件就需要滚动了
 
 muduo::AsyncLogging* g_asyncLog = NULL;
 
@@ -36,7 +36,7 @@ void bench(bool longLog)
       ++cnt;
     }
     muduo::Timestamp end = muduo::Timestamp::now();
-    printf("%f\n", timeDifference(end, start)*1000000/kBatch);
+    printf("%f\n", timeDifference(end, start)*1000000/kBatch); // 单位为毫秒
     struct timespec ts = { 0, 500*1000*1000 };
     nanosleep(&ts, NULL);
   }

@@ -35,12 +35,13 @@ class AsyncLogging : noncopyable
     }
   }
 
+  // 供前端的生产者调用（日志数据写到缓冲区）
   void append(const char* logline, int len);
 
   void start()
   {
     running_ = true;
-    thread_.start();
+    thread_.start();  // 日志线程启动
     latch_.wait();
   }
 
@@ -53,23 +54,26 @@ class AsyncLogging : noncopyable
 
  private:
 
-  void threadFunc();
+  // 供后端消费者线程调用（将数据写入到日志文件）
+  void threadFunc();  
 
   typedef muduo::detail::FixedBuffer<muduo::detail::kLargeBuffer> Buffer;
   typedef std::vector<std::unique_ptr<Buffer>> BufferVector;
   typedef BufferVector::value_type BufferPtr;
 
+  // 超时时间，在flushInterval_秒内，缓冲区没写满，仍将
+  // 缓冲区中的数据写到文件
   const int flushInterval_;
   std::atomic<bool> running_;
   const string basename_;
   const off_t rollSize_;
-  muduo::Thread thread_;
-  muduo::CountDownLatch latch_;
+  muduo::Thread thread_;  // 日志线程
+  muduo::CountDownLatch latch_;  // 用于等待线程启动
   muduo::MutexLock mutex_;
   muduo::Condition cond_ GUARDED_BY(mutex_);
-  BufferPtr currentBuffer_ GUARDED_BY(mutex_);
-  BufferPtr nextBuffer_ GUARDED_BY(mutex_);
-  BufferVector buffers_ GUARDED_BY(mutex_);
+  BufferPtr currentBuffer_ GUARDED_BY(mutex_);  // 当前缓冲区
+  BufferPtr nextBuffer_ GUARDED_BY(mutex_);     // 预备缓冲区
+  BufferVector buffers_ GUARDED_BY(mutex_);     // 待写入文件的已填满的缓冲区
 };
 
 }  // namespace muduo
