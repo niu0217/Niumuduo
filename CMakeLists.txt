@@ -5,7 +5,7 @@ project(muduo C CXX)
 enable_testing()
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release")
+  set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
 # only build examples if this is the main project
