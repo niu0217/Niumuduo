@@ -13,7 +13,7 @@ EventLoop* g_loop;
 void callback()
 {
   printf("callback(): pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
-  EventLoop anotherLoop;
+  EventLoop anotherLoop; // 这里会出错，因为一个线程对应一个EventLoop
 }
 
 void threadFunc()

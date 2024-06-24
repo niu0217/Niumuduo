@@ -41,7 +41,6 @@ EPollPoller::EPollPoller(EventLoop* loop)
     epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
     events_(kInitEventListSize)
 {
-  LOG_DEBUG << "EPollPoller::epollfd_ = " << epollfd_;
   if (epollfd_ < 0)
   {
     LOG_SYSFATAL << "EPollPoller::EPollPoller";

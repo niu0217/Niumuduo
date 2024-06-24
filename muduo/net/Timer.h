@@ -49,7 +49,7 @@ class Timer : noncopyable
 
  private:
   const TimerCallback callback_;  // 定时器回调函数
-  Timestamp expiration_;          // 下一次的超时时刻
+  Timestamp expiration_;          // 下一次的超时时刻 也就是该定时器的到期时间
   const double interval_;         // 超时时间间隔，如果是一次性定时器，该值为0
   const bool repeat_;             // 是否重复
   const int64_t sequence_;        // 定时器序号
