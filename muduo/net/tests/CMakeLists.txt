@@ -1,14 +1,14 @@
 # add_executable(channel_test Channel_test.cc)
 # target_link_libraries(channel_test muduo_net)
 
-# add_executable(echoserver_unittest EchoServer_unittest.cc)
-# target_link_libraries(echoserver_unittest muduo_net)
+add_executable(echoserver_unittest EchoServer_unittest.cc)
+target_link_libraries(echoserver_unittest muduo_net)
 
 # add_executable(echoclient_unittest EchoClient_unittest.cc)
 # target_link_libraries(echoclient_unittest muduo_net)
 
-add_executable(eventloop_unittest EventLoop_unittest.cc)
-target_link_libraries(eventloop_unittest muduo_net)
+# add_executable(eventloop_unittest EventLoop_unittest.cc)
+# target_link_libraries(eventloop_unittest muduo_net)
 
 # add_executable(eventloopthread_unittest EventLoopThread_unittest.cc)
 # target_link_libraries(eventloopthread_unittest muduo_net)

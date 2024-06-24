@@ -8,7 +8,7 @@
             "name": "(gdb) nettests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/ubuntu/OtherGithub/build/debug-cpp11/bin/channel_test",
+            "program": "/home/ubuntu/OtherGithub/build/debug-cpp11/bin/eventloopthread_unittest",
             "args": [],
             "stopAtEntry": false,
             "cwd": "/home/ubuntu/OtherGithub/build/debug-cpp11/bin",

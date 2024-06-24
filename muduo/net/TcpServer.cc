@@ -60,9 +60,10 @@ void TcpServer::setThreadNum(int numThreads)
 }
 
 // 该函数多次调用是无害的 可以跨线程调用
+// 一旦执行 start 函数，服务器就启动监听，可以接受客户端的连接了
 void TcpServer::start()
 {
-  if (started_.getAndSet(1) == 0)
+  if (started_.getAndSet(1) == 0)  // started_ 中的值默认为0？ 编译器干的？
   {
     threadPool_->start(threadInitCallback_);
 
@@ -73,6 +74,7 @@ void TcpServer::start()
   }
 }
 
+// 处理新客户连接 由 Acceptor::handleRead() 调用
 void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 {
   loop_->assertInLoopThread();

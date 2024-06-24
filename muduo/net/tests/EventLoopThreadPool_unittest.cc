@@ -45,7 +45,7 @@ int main()
     EventLoop* nextLoop = model.getNextLoop();
     nextLoop->runAfter(2, std::bind(print, nextLoop));
     assert(nextLoop != &loop);
-    assert(nextLoop == model.getNextLoop());
+    assert(nextLoop == model.getNextLoop()); // 因为只有一个
     assert(nextLoop == model.getNextLoop());
     ::sleep(3);
   }
@@ -57,10 +57,10 @@ int main()
     model.start(init);
     EventLoop* nextLoop = model.getNextLoop();
     nextLoop->runInLoop(std::bind(print, nextLoop));
-    assert(nextLoop != &loop);
-    assert(nextLoop != model.getNextLoop());
-    assert(nextLoop != model.getNextLoop());
-    assert(nextLoop == model.getNextLoop());
+    assert(nextLoop != &loop);  // 0
+    assert(nextLoop != model.getNextLoop());  // 1
+    assert(nextLoop != model.getNextLoop()); // 2
+    assert(nextLoop == model.getNextLoop()); // 0
   }
 
   loop.loop();
